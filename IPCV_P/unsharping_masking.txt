@@ -1,0 +1,56 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab.patches import cv2_imshow
+
+# Read image in grayscale
+img = cv2.imread('/content/sample_data/filter.tif', cv2.IMREAD_GRAYSCALE)
+
+# Kernel sizes for smoothing
+kernel_sizes = [3, 7, 11, 15, 21]
+
+results = []
+
+for k in kernel_sizes:
+    # Step 1: Blur image using averaging LPF
+    blurred = cv2.blur(img, (k, k))
+    
+    # Step 2: Create mask (edges only)
+    mask = img - blurred
+    
+    # Step 3: Add mask to original → sharpened result
+    sharpened = img + mask
+    
+    # Clip values between 0–255
+    sharpened = np.clip(sharpened, 0, 255).astype(np.uint8)
+
+    results.append((blurred, mask, sharpened, k))
+
+
+# -------- Display Results --------
+plt.figure(figsize=(16, 12))
+
+count = 1
+for blurred, mask, sharp, k in results:
+    plt.subplot(len(kernel_sizes), 3, count)
+    plt.imshow(blurred, cmap='gray')
+    plt.title(f"Blurred ({k}x{k})")
+    plt.axis("off")
+    count += 1
+
+    plt.subplot(len(kernel_sizes), 3, count)
+    plt.imshow(mask, cmap='gray')
+    plt.title(f"Mask ({k}x{k})")
+    plt.axis("off")
+    count += 1
+
+    plt.subplot(len(kernel_sizes), 3, count)
+    plt.imshow(sharp, cmap='gray')
+    plt.title(f"Sharpened ({k}x{k})")
+    plt.axis("off")
+    count += 1
+
+plt.tight_layout()
+plt.show()
+
+print("Unsharp masking complete.")

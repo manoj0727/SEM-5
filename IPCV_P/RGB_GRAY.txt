@@ -1,0 +1,29 @@
+import cv2
+from google.colab.patches import cv2_imshow
+
+img = cv2.imread('/content/sample_data/filter.tif')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+cv2_imshow(gray)
+
+
+
+############
+
+
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+img = cv2.imread('/content/sample_data/Lena.jpg')
+
+height, width, _ = img.shape
+gray = np.zeros((height, width), dtype=np.uint8)
+
+for y in range(height):
+    for x in range(width):
+        b, g, r = img[y, x]
+        gray_value = int(0.114 * b + 0.587 * g + 0.299 * r)
+        gray[y, x] = gray_value
+
+cv2_imshow(gray)

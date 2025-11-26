@@ -1,0 +1,37 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Step 1: Read color image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+
+# Step 2: Convert RGB to gray
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Step 3: Define Roberts Operator Kernels
+roberts_x = np.array([[1, 0],
+                      [0, -1]], dtype=np.float32)
+
+roberts_y = np.array([[0, 1],
+                      [-1, 0]], dtype=np.float32)
+
+# Step 4: Apply Roberts operator
+gx = cv2.filter2D(gray, -1, roberts_x)
+gy = cv2.filter2D(gray, -1, roberts_y)
+
+# Step 5: Combine gradients
+roberts_edge = np.sqrt(gx.astype(np.float32)**2 + gy.astype(np.float32)**2)
+roberts_edge = np.uint8(roberts_edge)
+
+# Step 6: Display output
+print("Original Gray Image")
+cv2_imshow(gray)
+
+print("Roberts X Edge")
+cv2_imshow(gx)
+
+print("Roberts Y Edge")
+cv2_imshow(gy)
+
+print("Final Roberts Edge Image (Combined)")
+cv2_imshow(roberts_edge)

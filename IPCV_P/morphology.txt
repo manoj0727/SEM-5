@@ -1,0 +1,80 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# ---- Load grayscale or binary image ----
+img = cv2.imread('/content/gray_image.jpg', cv2.IMREAD_GRAYSCALE)
+
+# Convert to binary if needed
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+rows, cols = binary.shape
+
+# ---- 5x5 Kernel ----
+kernel = np.ones((5,5), np.uint8)
+k = 2  # padding for 5×5 window
+
+
+# -----------------------------------------------------
+# STEP 1 — Opening (Erosion → Dilation)
+# -----------------------------------------------------
+
+# ---- Erosion (5x5) ----
+padded = np.pad(binary, k, mode='constant', constant_values=0)
+eroded = np.zeros_like(binary)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded[i-k:i+k+1, j-k:j+k+1]
+        eroded[i-k, j-k] = np.min(region)
+
+# ---- Dilation (5x5) ----
+padded_e = np.pad(eroded, k, mode='constant', constant_values=0)
+opened = np.zeros_like(binary)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded_e[i-k:i+k+1, j-k:j+k+1]
+        opened[i-k, j-k] = np.max(region)
+
+
+# -----------------------------------------------------
+# STEP 2 — Closing (Dilation → Erosion)
+# -----------------------------------------------------
+
+# ---- Dilation (5x5) ----
+padded_o = np.pad(opened, k, mode='constant', constant_values=0)
+dilated = np.zeros_like(binary)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded_o[i-k:i+k+1, j-k:j+k+1]
+        dilated[i-k, j-k] = np.max(region)
+
+# ---- Erosion (5x5) ----
+padded_d = np.pad(dilated, k, mode='constant', constant_values=0)
+closed = np.zeros_like(binary)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded_d[i-k:i+k+1, j-k:j+k+1]
+        closed[i-k, j-k] = np.min(region)
+
+# FINAL RESULT = Morphological Filtering
+filtered = closed
+
+
+# -----------------------------------------------------
+# Display Results
+# -----------------------------------------------------
+print("Original Binary Image:")
+cv2_imshow(binary)
+
+print("After Opening (Erosion → Dilation):")
+cv2_imshow(opened)
+
+print("After Closing (Dilation → Erosion):")
+cv2_imshow(closed)
+
+print("Morphological Filtering Result (Opening + Closing):")
+cv2_imshow(filtered)

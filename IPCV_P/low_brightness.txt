@@ -1,0 +1,32 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image and convert to grayscale
+image = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Create output image
+dark_gray = np.zeros((height, width), dtype=np.uint8)
+
+brightness_decrease = 50
+
+# Loop through image safely
+for y in range(height):
+    for x in range(width):
+        value = int(gray[y, x])  # convert to normal int (not uint8)
+
+        new_value = value - brightness_decrease
+
+        if new_value < 0:
+            new_value = 0
+
+        dark_gray[y, x] = new_value
+
+# Display and save
+cv2_imshow(dark_gray)
+cv2.imwrite("fixed_low_brightness_gray.png", dark_gray)
+
+print("Fixed low brightness image saved!")

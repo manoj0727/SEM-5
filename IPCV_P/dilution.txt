@@ -1,0 +1,27 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Read grayscale image
+img = cv2.imread('/content/sample_data/ckt_board.tif', cv2.IMREAD_GRAYSCALE)
+
+rows, cols = img.shape
+
+# Structuring element (3x3)
+kernel = np.ones((3,3), np.uint8)
+
+# Output image
+dilated = np.zeros_like(img)
+
+# Manual dilation using loops
+for i in range(1, rows-1):
+    for j in range(1, cols-1):
+        region = img[i-1:i+2, j-1:j+2]     # extract 3x3 block
+        dilated[i, j] = np.max(region)     # dilation = max value in window
+
+# Show results
+print("Original Image:")
+cv2_imshow(img)
+
+print("Dilated Image (Manual):")
+cv2_imshow(dilated)

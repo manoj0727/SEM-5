@@ -1,0 +1,24 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Read and convert to grayscale
+img = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+h, w = gray.shape
+
+# Create 8 empty images for bit planes
+bit_planes = [np.zeros((h, w), dtype=np.uint8) for _ in range(8)]
+
+# Loop through pixels and extract bits
+for i in range(h):
+    for j in range(w):
+        pixel = gray[i, j]
+        for k in range(8):   # 0 to 7 bit planes
+            bit_planes[k][i, j] = ((pixel >> k) & 1) * 255
+
+# Display all bit planes
+for k in range(8):
+    print(f"Bit Plane {k}")
+    cv2_imshow(bit_planes[k])

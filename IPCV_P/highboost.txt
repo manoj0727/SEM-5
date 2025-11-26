@@ -1,0 +1,58 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab.patches import cv2_imshow
+
+# Step 1: Load grayscale image
+img = cv2.imread('/content/sample_data/filter.tif', cv2.IMREAD_GRAYSCALE)
+
+if img is None:
+    raise ValueError("Image not found. Make sure filter.tif exists.")
+
+# Step 2: Apply LPF blur (3x3 kernel)
+blurred = cv2.blur(img, (3, 3))
+
+# Step 3: Create mask (Unsharp Masking logic)
+mask = img - blurred
+
+# Step 4: High-boost for different constants
+boost_factors = [1, 2, 5, 8]
+results = {}
+
+for k in boost_factors:
+    highboost = img + k * mask
+    highboost = np.clip(highboost, 0, 255).astype(np.uint8)
+    results[f"HBF (k={k})"] = highboost
+
+# Step 5: Display using 3x3 layout
+plt.figure(figsize=(12, 10))
+
+# Original
+plt.subplot(3, 3, 1)
+plt.imshow(img, cmap='gray')
+plt.title("Original")
+plt.axis('off')
+
+# Blurred
+plt.subplot(3, 3, 2)
+plt.imshow(blurred, cmap='gray')
+plt.title("Blurred (3x3)")
+plt.axis('off')
+
+# Mask
+plt.subplot(3, 3, 3)
+plt.imshow(mask, cmap='gray')
+plt.title("Mask Image")
+plt.axis('off')
+
+# High-Boost Results
+index = 4
+for title, output in results.items():
+    plt.subplot(3, 3, index)
+    plt.imshow(output, cmap='gray')
+    plt.title(title)
+    plt.axis('off')
+    index += 1
+
+plt.tight_layout()
+plt.show()

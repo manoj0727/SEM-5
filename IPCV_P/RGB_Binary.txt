@@ -1,0 +1,59 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+height, width, _ = img.shape
+
+# Create grayscale image
+gray = np.zeros((height, width), dtype=np.uint8)
+
+for y in range(height):
+    for x in range(width):
+        b, g, r = img[y, x]
+        gray[y, x] = int(0.114 * b + 0.587 * g + 0.299 * r)
+
+# Create binary image using threshold
+binary = np.zeros((height, width), dtype=np.uint8)
+threshold = 127
+
+for y in range(height):
+    for x in range(width):
+        if gray[y, x] > threshold:
+            binary[y, x] = 255
+        else:
+            binary[y, x] = 0
+
+# Display result
+cv2_imshow(binary)
+
+# Save output
+cv2.imwrite('binary.png', binary)
+
+print("Binary image saved as binary.png")
+
+
+
+
+#################
+
+
+import cv2
+from google.colab.patches import cv2_imshow
+
+# Read image (BGR format in OpenCV)
+image = cv2.imread('/content/sample_data/Lena.jpg')
+
+# Convert to grayscale
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Apply binary threshold
+ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+
+# Display binary output
+cv2_imshow(binary)
+
+# Save result
+cv2.imwrite('binary.png', binary)
+print("Binary image saved as binary.png")

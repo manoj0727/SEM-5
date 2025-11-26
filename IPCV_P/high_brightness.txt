@@ -1,0 +1,36 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image and convert to grayscale
+image = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Output image
+bright_gray = np.zeros((height, width), dtype=np.uint8)
+
+# Brightness increase value
+increase_value = 50
+
+# Loop through each pixel
+for y in range(height):
+    for x in range(width):
+        value = int(gray[y, x])  # convert to int (avoid overflow issue)
+
+        new_value = value + increase_value
+
+        # Clamp to max 255
+        if new_value > 255:
+            new_value = 255
+
+        bright_gray[y, x] = new_value
+
+# Display result
+cv2_imshow(bright_gray)
+
+# Save output
+cv2.imwrite("high_brightness_gray.png", bright_gray)
+
+print("High brightness grayscale image saved as high_brightness_gray.png")

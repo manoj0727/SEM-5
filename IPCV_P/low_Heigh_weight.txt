@@ -1,0 +1,55 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read grayscale image
+image = cv2.imread('/content/sample_data/filter.tif', cv2.IMREAD_GRAYSCALE)
+
+if image is None:
+    raise ValueError("Image not loaded. Make sure 'filter.tif' exists.")
+
+# Function to show results in a grid
+def show_results(results, titles, main_title):
+    plt.figure(figsize=(18, 10))
+    for i, (res, title) in enumerate(zip(results, titles)):
+        plt.subplot(2, 3, i + 1)
+        plt.imshow(res, cmap='gray')
+        plt.title(f'{main_title} - {title}')
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+# Kernel sizes
+kernel_sizes = [3, 7, 11, 15, 21]
+titles = [f'{k}x{k}' for k in kernel_sizes]
+
+
+# ---------------- LOW PASS FILTER (MEAN FILTER) ----------------
+low_pass_results = []
+for k in kernel_sizes:
+    kernel = np.ones((k, k), np.float32) / (k * k)  # averaging kernel
+    filtered = cv2.filter2D(image, -1, kernel)
+    low_pass_results.append(filtered)
+
+show_results(low_pass_results, titles, 'Low-Pass Filter (Mean)')
+
+
+# ---------------- HIGH PASS FILTER ----------------
+high_pass_results = []
+for k in kernel_sizes:
+    kernel = -1 * np.ones((k, k), np.float32)
+    center = k // 2
+    kernel[center, center] = (k * k) - 1  # core modification
+    filtered = cv2.filter2D(image, -1, kernel)
+    high_pass_results.append(filtered)
+
+show_results(high_pass_results, titles, 'High-Pass Filter')
+
+
+# ---------------- WEIGHTED AVERAGE (GAUSSIAN FILTER) ----------------
+weighted_results = []
+for k in kernel_sizes:
+    filtered = cv2.GaussianBlur(image, (k, k), sigmaX=0)  # gaussian smoothing
+    weighted_results.append(filtered)
+
+show_results(weighted_results, titles, 'Weighted Average (Gaussian) Filter')

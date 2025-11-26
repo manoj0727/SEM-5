@@ -1,0 +1,37 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load and convert to grayscale
+image = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Create output image
+high_contrast = np.zeros((height, width), dtype=np.uint8)
+
+# Contrast factor (>1 increases contrast)
+contrast_factor = 1.5  # Try values: 1.2, 1.5, 2.0
+
+# Apply high contrast using pixel manipulation
+for y in range(height):
+    for x in range(width):
+        value = int(gray[y, x])
+        
+        # Increase contrast
+        new_value = int(value * contrast_factor)
+
+        # Clamp values to stay within valid range
+        if new_value > 255:
+            new_value = 255
+        if new_value < 0:
+            new_value = 0
+
+        high_contrast[y, x] = new_value
+
+# Display and save output
+cv2_imshow(high_contrast)
+cv2.imwrite("high_contrast_gray.png", high_contrast)
+
+print("High contrast grayscale image saved as high_contrast_gray.png")

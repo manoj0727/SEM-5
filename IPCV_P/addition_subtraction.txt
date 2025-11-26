@@ -1,0 +1,80 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load two images
+img1 = cv2.imread('/content/sample_data/Lena.jpg')
+img2 = cv2.imread('/content/sample_data/filter.tif')  # Use another image if available
+
+# Convert to grayscale
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+# Resize both to same size (256x256) using loop (nearest neighbor)
+new_h, new_w = 256, 256
+
+resized1 = np.zeros((new_h, new_w), dtype=np.uint8)
+resized2 = np.zeros((new_h, new_w), dtype=np.uint8)
+
+h1, w1 = gray1.shape
+h2, w2 = gray2.shape
+
+for y in range(new_h):
+    for x in range(new_w):
+        resized1[y, x] = gray1[int(y * h1 / new_h), int(x * w1 / new_w)]
+        resized2[y, x] = gray2[int(y * h2 / new_h), int(x * w2 / new_w)]
+
+# Create containers
+add_img = np.zeros((new_h, new_w), dtype=np.uint8)
+sub_img = np.zeros((new_h, new_w), dtype=np.uint8)
+mul_img = np.zeros((new_h, new_w), dtype=np.uint8)
+div_img = np.zeros((new_h, new_w), dtype=np.uint8)
+
+# Perform operations using loops
+for y in range(new_h):
+    for x in range(new_w):
+        # Addition
+        val = int(resized1[y, x]) + int(resized2[y, x])
+        add_img[y, x] = 255 if val > 255 else val
+
+        # Subtraction
+        val = int(resized1[y, x]) - int(resized2[y, x])
+        sub_img[y, x] = 0 if val < 0 else val
+
+        # Multiplication (scaled down to avoid overflow)
+        val = int(resized1[y, x]) * int(resized2[y, x]) // 255
+        mul_img[y, x] = 255 if val > 255 else val
+
+        # Division (avoid division by zero)
+        if resized2[y, x] == 0:
+            div_img[y, x] = 255
+        else:
+            val = int(resized1[y, x]) // max(1, resized2[y, x])
+            div_img[y, x] = 255 if val > 255 else val
+
+# Display results
+print("Gray Image 1")
+cv2_imshow(resized1)
+
+print("Gray Image 2")
+cv2_imshow(resized2)
+
+print("Addition Result")
+cv2_imshow(add_img)
+
+print("Subtraction Result")
+cv2_imshow(sub_img)
+
+print("Multiplication Result")
+cv2_imshow(mul_img)
+
+print("Division Result")
+cv2_imshow(div_img)
+
+# Save output images
+cv2.imwrite("added.png", add_img)
+cv2.imwrite("subtracted.png", sub_img)
+cv2.imwrite("multiplied.png", mul_img)
+cv2.imwrite("divided.png", div_img)
+
+print("All results saved!")

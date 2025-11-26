@@ -1,0 +1,70 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+import random
+
+# Step 1: Read image
+img = cv2.imread('/content/sample_data/ckt_board.tif', cv2.IMREAD_GRAYSCALE)
+
+if img is None:
+    raise ValueError("Image not found, check filename!")
+
+height, width = img.shape
+
+# ---------------- GAUSSIAN NOISE ----------------
+mean = 0
+sigma = 20
+gaussian_noise = img + np.random.normal(mean, sigma, img.shape)
+gaussian_noise = np.clip(gaussian_noise, 0, 255).astype(np.uint8)
+
+# ---------------- SALT NOISE ----------------
+salt_noise = img.copy()
+num_salt = int(0.02 * height * width)  # 2% noise
+
+for i in range(num_salt):
+    x = random.randint(0, width - 1)
+    y = random.randint(0, height - 1)
+    salt_noise[y, x] = 255
+
+# ---------------- PEPPER NOISE ----------------
+pepper_noise = img.copy()
+num_pepper = int(0.02 * height * width)
+
+for i in range(num_pepper):
+    x = random.randint(0, width - 1)
+    y = random.randint(0, height - 1)
+    pepper_noise[y, x] = 0
+
+# ---------------- SALT & PEPPER NOISE ----------------
+sp_noise = img.copy()
+num_sp = int(0.04 * height * width)
+
+for i in range(num_sp):
+    x = random.randint(0, width - 1)
+    y = random.randint(0, height - 1)
+    sp_noise[y, x] = 255 if random.random() < 0.5 else 0
+
+
+# ------------ DISPLAY RESULTS ----------------
+print("Original Image")
+cv2_imshow(img)
+
+print("Gaussian Noise Image")
+cv2_imshow(gaussian_noise)
+
+print("Salt Noise Image")
+cv2_imshow(salt_noise)
+
+print("Pepper Noise Image")
+cv2_imshow(pepper_noise)
+
+print("Salt & Pepper Noise Image")
+cv2_imshow(sp_noise)
+
+# ------------ SAVE OUTPUT ----------------
+cv2.imwrite("Gaussian_noise.png", gaussian_noise)
+cv2.imwrite("Salt_noise.png", salt_noise)
+cv2.imwrite("Pepper_noise.png", pepper_noise)
+cv2.imwrite("SaltPepper_noise.png", sp_noise)
+
+print("All degraded images saved successfully!")

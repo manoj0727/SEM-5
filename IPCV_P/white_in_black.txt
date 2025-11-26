@@ -1,0 +1,27 @@
+import cv2
+from google.colab.patches import cv2_imshow
+import numpy as np
+
+# Create empty list
+image = []
+
+for i in range(256):
+    image.append([])
+    for j in range(256):
+        image[i].append([])
+        
+        if 64 <= i < 192 and 64 <= j < 192:
+            # Black square
+            image[i][j] = [0, 0, 0]
+        else:
+            # White background
+            image[i][j] = [255, 255, 255]
+
+# Convert to NumPy array
+image = np.asarray(image, dtype=np.uint8)
+
+# Display and Save
+cv2_imshow(image)
+cv2.imwrite('black_in_white.png', image)
+
+print("Image saved as black_in_white.png")

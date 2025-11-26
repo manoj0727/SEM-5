@@ -1,0 +1,74 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# ---------- Step 1: Define 8×8 Binary Image ----------
+binary = np.array([
+    [0,0,0,0,0,0,0,0],
+    [0,255,255,255,0,0,0,255],
+    [0,255,255,255,0,0,0,0],
+    [0,255,255,255,0,255,0,0],
+    [0,0,255,0,0,0,0,0],
+    [0,0,255,0,0,255,255,0],
+    [0,255,0,255,0,0,255,0],
+    [0,255,255,255,0,0,0,0]
+], dtype=np.uint8)
+
+print("Input Binary Image (matrix form):\n")
+print(binary)
+
+# ---------- Step 2: Define Hit-and-Miss Kernel ----------
+# Interpretation:  1 -> foreground (must be 255)
+#                 -1 -> background (must be 0)
+#                  0 -> don't care
+kernel = np.array([
+    [0,  1, 0],
+    [1, -1, 1],
+    [0,  1, 0]
+], dtype=int)
+
+ksize = kernel.shape[0]
+pad = ksize // 2
+
+# ---------- Step 3: Pad Image ----------
+padded = np.pad(binary, ((pad, pad), (pad, pad)), mode='constant', constant_values=0)
+
+# ---------- Step 4: Hit-and-Miss Transformation ----------
+hitmiss = np.zeros_like(binary)  # uint8: 0 or 255
+for i in range(binary.shape[0]):
+    for j in range(binary.shape[1]):
+        region = padded[i:i+ksize, j:j+ksize]
+        match = True
+        for x in range(ksize):
+            for y in range(ksize):
+                k = kernel[x, y]
+                if k == 1:
+                    if region[x, y] != 255:
+                        match = False
+                        break
+                elif k == -1:
+                    if region[x, y] != 0:
+                        match = False
+                        break
+            if not match:
+                break
+        if match:
+            hitmiss[i, j] = 255
+
+# ---------- Step 5: Thinning Operation ----------
+thinned = cv2.subtract(binary, hitmiss)  # Thinning = A - (A ⊛ B)
+
+# ---------- Step 6: Display Results ----------
+print("\nThinning Output (matrix form):\n")
+print(thinned)
+
+# Enlarge images for clear visualization
+zoom = 30
+resized_input = cv2.resize(binary, None, fx=zoom, fy=zoom, interpolation=cv2.INTER_NEAREST)
+resized_thinned = cv2.resize(thinned, None, fx=zoom, fy=zoom, interpolation=cv2.INTER_NEAREST)
+
+print("\n➡️ Original Binary Image (zoomed):")
+cv2_imshow(resized_input)
+
+print("\n➡️ Thinned Image (zoomed):")
+cv2_imshow(resized_thinned)

@@ -1,0 +1,49 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# ---- Load grayscale or binary image ----
+img = cv2.imread('/content/gray_image.jpg', cv2.IMREAD_GRAYSCALE)
+
+# Convert grayscale → binary
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+rows, cols = binary.shape
+
+# ---- 5×5 Kernel ----
+kernel = np.ones((5,5), np.uint8)
+k = 2   # padding for 5×5
+
+# ------------------ DILATION (first step of Closing) ------------------
+dilated = np.zeros_like(binary)
+padded = np.pad(binary, k, mode='constant', constant_values=0)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded[i-k:i+k+1, j-k:j+k+1]
+        dilated[i-k, j-k] = np.max(region)
+
+# ------------------ EROSION (second step of Closing) ------------------
+eroded = np.zeros_like(binary)
+padded_d = np.pad(dilated, k, mode='constant', constant_values=0)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded_d[i-k:i+k+1, j-k:j+k+1]
+        eroded[i-k, j-k] = np.min(region)
+
+# Final Closing Output
+closing = eroded
+
+# ------------------ Display Results ------------------
+print("Original Binary Image:")
+cv2_imshow(binary)
+
+print("Dilated Image (Step 1 of Closing):")
+cv2_imshow(dilated)
+
+print("Eroded Image (Step 2 of Closing):")
+cv2_imshow(eroded)
+
+print("Closing Result (5x5 Kernel):")
+cv2_imshow(closing)

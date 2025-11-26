@@ -1,0 +1,36 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load and convert to grayscale
+image = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Create output image
+low_contrast = np.zeros((height, width), dtype=np.uint8)
+
+# Contrast factor (less than 1 → reduce contrast)
+contrast_factor = 0.5   # You can try: 0.3, 0.6, etc.
+
+# Apply low contrast using loop
+for y in range(height):
+    for x in range(width):
+        value = int(gray[y, x])
+        
+        new_value = int(value * contrast_factor)
+
+        # Clamp to range (not needed here but safe)
+        if new_value > 255:
+            new_value = 255
+        if new_value < 0:
+            new_value = 0
+
+        low_contrast[y, x] = new_value
+
+# Show and save
+cv2_imshow(low_contrast)
+cv2.imwrite("low_contrast_gray.png", low_contrast)
+
+print("Low contrast grayscale image saved as low_contrast_gray.png")

@@ -1,0 +1,25 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Read and convert to grayscale
+img = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Empty output image
+stretched = np.zeros_like(gray, dtype=np.uint8)
+
+# Find minimum and maximum gray values
+r_min = np.min(gray)
+r_max = np.max(gray)
+
+# Apply contrast stretching using loop
+for i in range(gray.shape[0]):
+    for j in range(gray.shape[1]):
+        r = float(gray[i, j])  # convert to float
+        s = 255 * (r - r_min) / (r_max - r_min)
+        stretched[i, j] = np.uint8(s)
+
+# Show results
+cv2_imshow(gray)
+cv2_imshow(stretched)

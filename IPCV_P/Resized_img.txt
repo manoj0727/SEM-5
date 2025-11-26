@@ -1,0 +1,29 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+h, w, c = img.shape
+
+# New size
+new_h, new_w = 128, 128
+
+# Empty resized image
+resized = np.zeros((new_h, new_w, c), dtype=np.uint8)
+
+# --- Resize using nearest neighbor mapping ---
+for y in range(new_h):
+    for x in range(new_w):
+        # Mapping original coordinates
+        orig_y = int(y * (h / new_h))
+        orig_x = int(x * (w / new_w))
+
+        # Copy pixel
+        resized[y, x] = img[orig_y, orig_x]
+
+# Show and save result
+cv2_imshow(resized)
+cv2.imwrite("resized_manual.png", resized)
+print("Resized image saved as resized_manual.png")
+

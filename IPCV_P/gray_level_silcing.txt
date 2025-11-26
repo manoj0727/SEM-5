@@ -1,0 +1,41 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load and convert to grayscale
+img = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Output images
+slice_with_bg = np.zeros_like(gray)
+slice_without_bg = np.zeros_like(gray)
+
+# Define slicing range
+A = 100   # lower bound
+B = 180   # upper bound
+
+# Apply slicing using loops
+for y in range(height):
+    for x in range(width):
+        pixel = gray[y, x]
+
+        if A <= pixel <= B:
+            # Highlight region
+            slice_with_bg[y, x] = 255
+            slice_without_bg[y, x] = 255
+        else:
+            # Keep original background or remove it
+            slice_with_bg[y, x] = gray[y, x]  # with background
+            slice_without_bg[y, x] = 0        # without background
+
+# Show results
+print("Original")
+cv2_imshow(gray)
+
+print("Gray Level Slicing (With Background)")
+cv2_imshow(slice_with_bg)
+
+print("Gray Level Slicing (Without Background)")
+cv2_imshow(slice_without_bg)

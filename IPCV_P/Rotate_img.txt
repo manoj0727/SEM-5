@@ -1,0 +1,21 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+height, width, channels = img.shape
+
+# Create empty rotated image (width and height swap)
+rotated = np.zeros((width, height, channels), dtype=np.uint8)
+
+# Rotate using loops (90° clockwise)
+for y in range(height):
+    for x in range(width):
+        rotated[x, height - 1 - y] = img[y, x]
+
+# Show and save result
+cv2_imshow(rotated)
+cv2.imwrite("rotated_manual.png", rotated)
+
+print("Rotated image saved as rotated_manual.png")

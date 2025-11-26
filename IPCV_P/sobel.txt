@@ -1,0 +1,39 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Step 1: Read the color image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+
+# Step 2: Convert RGB to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Step 3: Define Sobel Kernels
+sobel_x = np.array([[-1, 0, 1],
+                    [-2, 0, 2],
+                    [-1, 0, 1]], dtype=np.float32)
+
+sobel_y = np.array([[-1, -2, -1],
+                    [ 0,  0,  0],
+                    [ 1,  2,  1]], dtype=np.float32)
+
+# Step 4: Apply convolution to detect edges
+gx = cv2.filter2D(gray, -1, sobel_x)  # horizontal edges
+gy = cv2.filter2D(gray, -1, sobel_y)  # vertical edges
+
+# Step 5: Combine both gradients
+sobel_edge = np.sqrt(gx.astype(np.float32)**2 + gy.astype(np.float32)**2)
+sobel_edge = np.uint8(sobel_edge)
+
+# Step 6: Display results
+print("Original Gray Image")
+cv2_imshow(gray)
+
+print("Sobel X Edge")
+cv2_imshow(gx)
+
+print("Sobel Y Edge")
+cv2_imshow(gy)
+
+print("Final Sobel Edge (Combined)")
+cv2_imshow(sobel_edge)

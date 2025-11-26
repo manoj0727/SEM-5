@@ -1,0 +1,25 @@
+import cv2
+import numpy as np
+import math
+from google.colab.patches import cv2_imshow
+
+# Read and convert to grayscale
+img = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Empty output image
+log_img = np.zeros_like(gray)
+
+# Constant
+c = 50   # you can change to 10 or 50
+
+# Log transform using loop
+for i in range(gray.shape[0]):
+    for j in range(gray.shape[1]):
+        r = int(gray[i, j])
+        s = c * math.log(1 + r)
+        log_img[i, j] = np.clip(s, 0, 255)
+
+# Show result
+cv2_imshow(gray)
+cv2_imshow(log_img)

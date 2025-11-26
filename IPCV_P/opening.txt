@@ -1,0 +1,49 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# ---- Load grayscale or binary image ----
+img = cv2.imread('/content/gray_image.jpg', cv2.IMREAD_GRAYSCALE)
+
+# Convert to binary if grayscale
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+rows, cols = binary.shape
+
+# ---- Define 5x5 Structuring Element ----
+kernel = np.ones((5,5), np.uint8)   # full 5×5 block
+k = 2   # padding radius for 5×5
+
+# ---- Erosion (manual 5×5) ----
+eroded = np.zeros_like(binary)
+padded = np.pad(binary, k, mode='constant', constant_values=0)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded[i-k:i+k+1, j-k:j+k+1]
+        eroded[i-k, j-k] = np.min(region)
+
+# ---- Dilation (manual 5×5) ----
+dilated = np.zeros_like(binary)
+padded_e = np.pad(eroded, k, mode='constant', constant_values=0)
+
+for i in range(k, rows + k):
+    for j in range(k, cols + k):
+        region = padded_e[i-k:i+k+1, j-k:j+k+1]
+        dilated[i-k, j-k] = np.max(region)
+
+# ---- Result of Opening ----
+opening = dilated
+
+# ---- Display Images ----
+print("Original Image (Binary)")
+cv2_imshow(binary)
+
+print("After Erosion (5x5)")
+cv2_imshow(eroded)
+
+print("After Dilation (5x5)")
+cv2_imshow(dilated)
+
+print("Opening Result (5x5 Kernel)")
+cv2_imshow(opening)

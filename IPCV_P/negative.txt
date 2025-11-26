@@ -1,0 +1,26 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load and convert to grayscale
+image = cv2.imread('/content/sample_data/Lena.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+height, width = gray.shape
+
+# Create output image
+negative = np.zeros((height, width), dtype=np.uint8)
+
+# Generate negative image manually
+for y in range(height):
+    for x in range(width):
+        value = int(gray[y, x])
+        negative[y, x] = int(255 - value )  # invert pixel
+
+# Display result
+cv2_imshow(negative)
+
+# Save output
+cv2.imwrite("negative_gray.png", negative)
+
+print("Negative grayscale image saved as negative_gray.png")

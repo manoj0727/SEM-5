@@ -1,0 +1,29 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Load image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+height, width, channels = img.shape
+
+# Crop coordinates
+start_y, end_y = 100, 200
+start_x, end_x = 100, 200
+
+# Output crop size
+crop_h = end_y - start_y
+crop_w = end_x - start_x
+
+# Create empty output image
+crop = np.zeros((crop_h, crop_w, channels), dtype=np.uint8)
+
+# Copy selected pixels manually
+for y in range(start_y, end_y):
+    for x in range(start_x, end_x):
+        crop[y - start_y, x - start_x] = img[y, x]
+
+# Display and save
+cv2_imshow(crop)
+cv2.imwrite("cropped_manual.png", crop)
+
+print("Crop saved as cropped_manual.png")

@@ -1,0 +1,33 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Create a 256×256 black RGB image
+image = np.zeros((256, 256, 3), dtype=np.uint8)
+
+# Display image
+cv2_imshow(image)
+
+# Save the image
+cv2.imwrite('black_image.png', image)
+print("Image saved as black_image.png")
+
+
+
+############
+White
+
+
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Create a 256×256 black RGB image
+image = np.ones((256, 256, 3), dtype=np.uint8)*255
+
+# Display image
+cv2_imshow(image)
+
+# Save the image
+cv2.imwrite('black_image.png', image)
+print("Image saved as black_image.png")

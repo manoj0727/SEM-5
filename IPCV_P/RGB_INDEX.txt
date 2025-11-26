@@ -1,0 +1,73 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+# Read Image
+img = cv2.imread('/content/sample_data/Lena.jpg')
+height, width, _ = img.shape
+
+# Color Palette (8 Colors)
+palette = [
+    [0, 0, 0],        # 0: Black
+    [255, 0, 0],      # 1: Blue
+    [0, 255, 0],      # 2: Green
+    [0, 0, 255],      # 3: Red
+    [255, 255, 0],    # 4: Cyan
+    [255, 0, 255],    # 5: Magenta
+    [0, 255, 255],    # 6: Yellow
+    [255, 255, 255]   # 7: White
+]
+
+# Create indexed matrix
+indexed = np.zeros((height, width), dtype=np.uint8)
+
+# Loop through every pixel
+for y in range(height):
+    for x in range(width):
+        pixel = img[y, x]
+        min_distance = float('inf')
+        best_index = 0
+        
+        # Compare with each color in palette
+        for i, color in enumerate(palette):
+            distance = 0
+            for c in range(3):
+                diff = int(pixel[c]) - int(color[c])
+                distance += diff * diff
+
+            if distance < min_distance:
+                min_distance = distance
+                best_index = i
+        
+        indexed[y, x] = best_index
+
+# Display indexed image (scaled for visibility)
+cv2_imshow(indexed * 32)
+
+# Save result
+cv2.imwrite('indexed_image.png', indexed)
+
+
+
+##########
+
+import numpy as np
+import cv2
+from google.colab.patches import cv2_imshow
+from PIL import Image   # <-- Missing import fixed
+
+# Load Image
+img = Image.open('/content/sample_data/Lena.jpg')
+
+# Convert RGB to Indexed (Adaptive Palette)
+indexed_img = img.convert('P', palette=Image.ADAPTIVE, colors=256)
+
+# Convert to numpy for display with OpenCV
+indexed = np.array(indexed_img)
+
+# Display indexed result (Colab needs cv2_imshow)
+cv2_imshow(indexed)
+
+# Save output
+indexed_img.save('indexed_pil.png')
+print("Saved as indexed_pil.png")
