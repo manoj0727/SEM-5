@@ -1,0 +1,29 @@
+clear;
+clc;
+%Lab3
+%% Task 1: BER with Multipath Channel
+numBits = 1e4;      % Number of bits
+EbNo_dB = 10;       % SNR in dB
+
+% Transmitter (BPSK)
+dataBits = randi([0 1], numBits, 1);
+txSymbols = 2*dataBits - 1;     % 0→-1, 1→+1
+
+% Multipath Channel
+channel = [0.9 0.5 0.3];
+rxSignal = conv(txSymbols, channel, 'same');
+
+% AWGN
+EbNo = 10^(EbNo_dB/10);
+noiseVar = 1/(2*EbNo);
+noise = sqrt(noiseVar) * randn(size(rxSignal));
+rxSignal = rxSignal + noise;
+
+% Detection
+rxBits = rxSignal >= 0;
+
+% BER
+numErrors = sum(dataBits ~= rxBits);
+BER = numErrors/numBits;
+
+fprintf('BER with multipath channel = %e\n', BER);
