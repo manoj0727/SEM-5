@@ -1,0 +1,43 @@
+clc; clear; close all;
+
+%% 1. Continuous signal
+t = 0:0.0001:1;
+f = 5;
+x = sin(2*pi*f*t);
+figure; plot(t, x);
+title('Continuous Signal'); grid on;
+
+%% 2. Sampling
+Fs = 20;
+n = 0:1/Fs:1;
+x_s = sin(2*pi*f*n);
+figure; stem(n, x_s, 'filled');
+title('Sampled Signal'); grid on;
+
+%% 3. Quantization (4 Levels → 2 bits)
+L = 4;
+x_min = -1;
+x_max = 1;
+delta = (x_max - x_min)/L;
+
+% Create 4 uniform quantization levels
+levels = x_min + delta/2 : delta : x_max - delta/2;
+
+% Quantization index calculation (0 to 3 guaranteed)
+index = round( (x_s - x_min) / delta );
+index(index < 0) = 0;
+index(index > L-1) = L-1;
+
+x_q = levels(index + 1);  % Safe indexing
+
+figure; stem(n, x_q, 'filled');
+title('Quantized Signal'); grid on;
+
+%% 4. Binary Encoding of Index
+bits = log2(L);
+b = dec2bin(index, bits);
+
+disp('Index  Binary');
+for i = 1:length(index)
+    fprintf('%d      %s\n', index(i), b(i,:));
+end

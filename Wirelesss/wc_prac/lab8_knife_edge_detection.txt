@@ -1,0 +1,61 @@
+%% Practical 9: Knife-Edge Diffraction + Fresnel Parameter
+% Line-of-Sight obstacle cases
+
+clc; clear; close all;
+
+lambda = 1/3;                 % wavelength (m)
+d1 = 1000; d2 = 1000;         % Tx–Obs and Obs–Rx distance (m)
+h_vals = [20, 0.5, -25];       % obstacle heights (m)
+
+for k = 1:length(h_vals)
+    h = h_vals(k);
+
+    % 1) Fresnel diffraction parameter
+    v = h * sqrt(2*(d1+d2)/(lambda*d1*d2));
+
+    % 2) Path difference Δ
+    Delta = (h^2/2) * (1/d1 + 1/d2);
+
+    % 3) Fresnel zone number
+    n = Delta / (lambda/2);
+
+    % Print values
+    fprintf('\nCase (h = %.2f m):\n', h);
+    fprintf('  v = %.4f\n', v);
+    fprintf('  Δ = %.4f m\n', Delta);
+    fprintf('  n = %.4f\n', n);
+
+    % v range for diffraction gain curve
+    v_range = -3:0.01:5;
+    Gd = zeros(size(v_range));
+
+    % Compute diffraction gain using piecewise model
+    for i = 1:length(v_range)
+        vtemp = v_range(i);
+
+        if vtemp <= -1
+            Gd(i) = 0;
+
+        elseif vtemp <= 0
+            Gd(i) = 20*log10(0.5 - 0.62*vtemp);
+
+        elseif vtemp <= 1
+            Gd(i) = 20*log10(0.5 * exp(-0.95*vtemp));
+
+        elseif vtemp <= 2.4
+            Gd(i) = 20*log10(0.4 - sqrt(0.1184 - (0.38 - 0.1*vtemp)^2));
+
+        else
+            Gd(i) = 20*log10(0.225/vtemp);
+        end
+    end
+
+    % Plot diffraction gain curve
+    figure;
+    plot(v_range, Gd, 'LineWidth', 1.5);
+    grid on;
+
+    xlabel('Fresnel parameter v');
+    ylabel('Diffraction gain G_d (dB)');
+    title(['Knife-Edge Diffraction for h = ' num2str(h) ' m']);
+end
